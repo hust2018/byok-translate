@@ -5,6 +5,9 @@
 
   const SEG = window.TWSegment;
 
+  // 只让译文跟原文「字体保持一致」，字号/颜色/粗细等不照搬，自然继承容器的正文样式。
+  const TYPO_PROPS = ['fontFamily'];
+
   const STATE = {
     on: false,
     observer: null,
@@ -37,11 +40,20 @@
   }
 
   function insertPlaceholder(block) {
-    // 作为原段落的子节点插入:译文自动继承原段落的字体/字号/颜色/粗细，样式一致。
-    const node = document.createElement('span');
+    // 作为原段落的「兄弟节点」插在其后:始终另起一行排在原文下面，不受原段落
+    // 是否为 flex/grid 容器影响。只复制原段落的字体(font-family)，保持字体风格一致；
+    // 字号/颜色等不照搬，自然继承容器的正文样式。
+    const node = document.createElement('div');
     node.className = 'tw-translation tw-loading';
     node.textContent = '翻译中…';
-    block.appendChild(node);
+    try {
+      const cs = getComputedStyle(block);
+      TYPO_PROPS.forEach((p) => { node.style[p] = cs[p]; });
+    } catch (e) { /* 极少数情况下 getComputedStyle 不可用，忽略，退回继承父级 */ }
+    // 行内样式优先级高，保证「在下面、独占一行」即使站点 CSS 或注入样式表异常也成立。
+    node.style.display = 'block';
+    node.style.marginTop = '0.25em';
+    block.insertAdjacentElement('afterend', node);
     return node;
   }
 
