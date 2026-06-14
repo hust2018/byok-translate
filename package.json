@@ -4,6 +4,6 @@
   "private": true,
   "description": "网页双语翻译浏览器扩展（自带模型 key/url）",
   "scripts": {
-    "test": "node --test tests/"
+    "test": "node --test tests/*.test.js"
   }
 }

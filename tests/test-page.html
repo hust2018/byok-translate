@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8" /><title>trans-web test page</title></head>
+<body>
+  <h1>The Quick Brown Fox</h1>
+  <p>This is the first paragraph that should be translated into the target language.</p>
+  <p>Here is a second paragraph with more meaningful sentences to verify batching works correctly across multiple blocks.</p>
+  <blockquote>A wise quote that also deserves a translation below it.</blockquote>
+  <ul>
+    <li>First list item with enough words to be translatable.</li>
+    <li>Second list item, also translatable content here.</li>
+  </ul>
+  <pre><code>const x = 1; // this code block must NOT be translated</code></pre>
+  <p>123 456 789</p>
+  <p>$ 1,000.00</p>
+  <p style="margin-top:1500px;">This paragraph is far down to test lazy loading via scrolling into the viewport.</p>
+</body>
+</html>
