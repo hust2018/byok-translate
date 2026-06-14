@@ -1,0 +1,9 @@
+{
+  "name": "trans-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "网页双语翻译浏览器扩展（自带模型 key/url）",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}
