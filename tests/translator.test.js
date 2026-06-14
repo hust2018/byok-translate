@@ -90,13 +90,13 @@ test('interpretResponse: 200 但返回 HTML -> 提示 Base URL 错误并附实�
       ok: true,
       contentType: 'text/html; charset=utf-8',
       rawText: '<!doctype html>\n<html lang="zh"><head></head></html>',
-      url: 'https://api.ikuncode.cc/chat/completions',
+      url: 'https://api.example.com/chat/completions',
     }
   );
   assert.equal(r.ok, false);
   assert.equal(r.error.status, 200);
   assert.match(r.error.message, /网页|HTML|Base URL/);
-  assert.match(r.error.message, /https:\/\/api\.ikuncode\.cc\/chat\/completions/);
+  assert.match(r.error.message, /https:\/\/api\.example\.com\/chat\/completions/);
 });
 
 test('interpretResponse: 成功 openai -> 返回 translations', () => {
@@ -107,7 +107,7 @@ test('interpretResponse: 成功 openai -> 返回 translations', () => {
       ok: true,
       contentType: 'application/json',
       rawText: JSON.stringify({ choices: [{ message: { content: '["你好"]' } }] }),
-      url: 'https://api.ikuncode.cc/v1/chat/completions',
+      url: 'https://api.example.com/v1/chat/completions',
     }
   );
   assert.equal(r.ok, true);
@@ -137,7 +137,7 @@ test('interpretResponse: 401 JSON 错误 -> 透传 error.message 与状态码', 
       ok: false,
       contentType: 'application/json',
       rawText: JSON.stringify({ error: { message: 'Invalid API key' } }),
-      url: 'https://api.ikuncode.cc/v1/chat/completions',
+      url: 'https://api.example.com/v1/chat/completions',
     }
   );
   assert.equal(r.ok, false);
@@ -153,7 +153,7 @@ test('interpretResponse: 200 但非 JSON 非 HTML -> 提示不是合法 JSON', (
       ok: true,
       contentType: 'text/plain',
       rawText: 'service temporarily unavailable',
-      url: 'https://api.ikuncode.cc/v1/chat/completions',
+      url: 'https://api.example.com/v1/chat/completions',
     }
   );
   assert.equal(r.ok, false);
