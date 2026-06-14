@@ -1,20 +1,11 @@
+/* 译文是原段落的子节点，默认继承原段落的字体/字号/颜色/粗细/行高/对齐，
+   与原文样式一致。这里只让它另起一行、留一点间距。 */
 .tw-translation {
   display: block;
-  margin: 4px 0 8px 0;
-  padding-left: 8px;
-  border-left: 2px solid rgba(45, 125, 249, 0.4);
-  color: #1a5fb4;
-  font-size: 0.96em;
-  line-height: 1.5;
-  opacity: 0.95;
+  margin-top: 0.25em;
 }
 .tw-translation.tw-loading {
-  color: #888;
-  font-style: italic;
-}
-.tw-translation.tw-error {
-  color: #c01c28;
-  border-left-color: rgba(192, 28, 40, 0.5);
+  opacity: 0.5;
 }
 #tw-toast {
   position: fixed;

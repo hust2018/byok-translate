@@ -37,15 +37,16 @@
   }
 
   function insertPlaceholder(block) {
-    const node = document.createElement('div');
+    // 作为原段落的子节点插入:译文自动继承原段落的字体/字号/颜色/粗细，样式一致。
+    const node = document.createElement('span');
     node.className = 'tw-translation tw-loading';
     node.textContent = '翻译中…';
-    block.insertAdjacentElement('afterend', node);
+    block.appendChild(node);
     return node;
   }
 
   function sendBatch(batch) {
-    const texts = batch.map((b) => (b.el.innerText || b.el.textContent).trim());
+    const texts = batch.map((b) => b.text);
     chrome.runtime.sendMessage({ type: 'translate', texts }, (resp) => {
       if (chrome.runtime.lastError || !resp || !resp.ok) {
         const err = resp && resp.error;
@@ -92,9 +93,12 @@
 
   function enqueueBlock(el) {
     if (el.getAttribute('data-tw')) return;
+    // 先抓取原文，再插占位节点（占位会成为 el 的子节点，之后读 innerText 会被污染）。
+    const text = (el.innerText || el.textContent || '').trim();
+    if (!text) return;
     el.setAttribute('data-tw', 'pending');
     const placeholder = insertPlaceholder(el);
-    STATE.queue.push({ el, placeholder });
+    STATE.queue.push({ el, placeholder, text });
     scheduleFlush();
   }
 
