@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>trans-web 设置</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="tw-options">
+    <h1>trans-web 翻译设置</h1>
+
+    <label class="tw-field">
+      <span>模型接口格式</span>
+      <select id="provider">
+        <option value="openai">OpenAI 兼容（/v1/chat/completions）</option>
+        <option value="anthropic">Anthropic（/v1/messages）</option>
+      </select>
+    </label>
+
+    <label class="tw-field">
+      <span>Base URL</span>
+      <input id="baseUrl" type="text" placeholder="https://api.openai.com/v1" />
+    </label>
+
+    <label class="tw-field">
+      <span>API Key</span>
+      <input id="apiKey" type="password" placeholder="sk-..." />
+    </label>
+
+    <label class="tw-field">
+      <span>模型名称</span>
+      <input id="model" type="text" placeholder="gpt-4o-mini" />
+    </label>
+
+    <label class="tw-field">
+      <span>目标语言</span>
+      <input id="targetLang" type="text" placeholder="简体中文" />
+    </label>
+
+    <label class="tw-field">
+      <span>自动翻译域名（每行一个，如 example.com）</span>
+      <textarea id="autoTranslateDomains" rows="4" placeholder="news.ycombinator.com"></textarea>
+    </label>
+
+    <div class="tw-field-group">
+      <label class="tw-field tw-half">
+        <span>每批段落数</span>
+        <input id="batchSize" type="number" min="1" max="50" />
+      </label>
+      <label class="tw-field tw-half">
+        <span>最大并发</span>
+        <input id="maxConcurrency" type="number" min="1" max="10" />
+      </label>
+    </div>
+
+    <button id="save" class="tw-save">保存</button>
+    <span id="saved" class="tw-saved"></span>
+  </div>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+body { margin: 0; background: #f5f6f8; }
+.tw-options {
+  max-width: 520px;
+  margin: 32px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #222;
+}
+.tw-options h1 { font-size: 18px; margin: 0 0 20px; }
+.tw-field { display: block; margin-bottom: 16px; }
+.tw-field > span { display: block; font-size: 13px; margin-bottom: 6px; color: #444; }
+.tw-field input,
+.tw-field select,
+.tw-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ccd0d5;
+  border-radius: 6px;
+  font-size: 13px;
+}
+.tw-field-group { display: flex; gap: 12px; }
+.tw-half { flex: 1; }
+.tw-save {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 6px;
+  background: #2d7df9;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+}
+.tw-save:hover { background: #1f6ae0; }
+.tw-saved { margin-left: 12px; color: #2e7d32; font-size: 13px; }
