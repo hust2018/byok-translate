@@ -1,0 +1,36 @@
+.tw-translation {
+  display: block;
+  margin: 4px 0 8px 0;
+  padding-left: 8px;
+  border-left: 2px solid rgba(45, 125, 249, 0.4);
+  color: #1a5fb4;
+  font-size: 0.96em;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+.tw-translation.tw-loading {
+  color: #888;
+  font-style: italic;
+}
+.tw-translation.tw-error {
+  color: #c01c28;
+  border-left-color: rgba(192, 28, 40, 0.5);
+}
+#tw-toast {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647;
+  max-width: 360px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #323232;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.4;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+#tw-toast.tw-toast-error {
+  background: #c01c28;
+}
