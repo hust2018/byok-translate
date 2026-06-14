@@ -21,16 +21,19 @@ async function translateBatch(job, settings) {
   try {
     const req = self.TWTranslator.buildRequest(settings, job.texts, settings.targetLang);
     const res = await fetch(req.url, { method: req.method, headers: req.headers, body: req.body });
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      job.reject({ status: res.status, message: text.slice(0, 300) });
-      return;
-    }
-    const data = await res.json();
-    const translations = self.TWTranslator.parseResponse(settings, data);
-    job.resolve(translations);
+    const rawText = await res.text();
+    const result = self.TWTranslator.interpretResponse(settings, {
+      status: res.status,
+      ok: res.ok,
+      contentType: res.headers.get('content-type') || '',
+      rawText: rawText,
+      url: req.url,
+    });
+    if (result.ok) job.resolve(result.translations);
+    else job.reject(result.error);
   } catch (e) {
-    job.reject({ status: 0, message: String((e && e.message) || e) });
+    // fetch 本身抛错（网络不通/证书/DNS）才会到这里
+    job.reject({ status: 0, message: '请求失败: ' + String((e && e.message) || e) });
   }
 }
 

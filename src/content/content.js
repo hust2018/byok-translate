@@ -50,7 +50,7 @@
       if (chrome.runtime.lastError || !resp || !resp.ok) {
         const err = resp && resp.error;
         const detail = err
-          ? (err.status + ' ' + (err.message || '')).slice(0, 140)
+          ? (err.status + ' ' + (err.message || '')).slice(0, 500)
           : (chrome.runtime.lastError && chrome.runtime.lastError.message) || '未知错误';
         batch.forEach((b) => { b.el.removeAttribute('data-tw'); b.placeholder.remove(); });
         showToast('翻译失败: ' + detail, true);

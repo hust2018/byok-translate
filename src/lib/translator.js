@@ -89,6 +89,55 @@
     return extractJsonArray(extractContent(config, responseJson));
   }
 
+  function looksLikeHtml(text, contentType) {
+    if (/html/i.test(contentType || '')) return true;
+    return /^\s*<(?:!doctype|html|\?xml)/i.test(text || '');
+  }
+
+  // 解释一次 HTTP 响应:输入原始文本+状态，输出 { ok:true, translations } 或 { ok:false, error }。
+  // 纯函数，便于单测；把网络副作用留给 background.js。
+  function interpretResponse(config, res) {
+    const status = res.status;
+    const rawText = res.rawText || '';
+    const contentType = res.contentType || '';
+    const url = res.url || '';
+
+    let data = null;
+    try {
+      data = JSON.parse(rawText);
+    } catch (e) {
+      data = null;
+    }
+
+    if (!res.ok) {
+      let message;
+      if (data && data.error) {
+        message = data.error.message || data.error.type || JSON.stringify(data.error);
+      } else if (data && typeof data.message === 'string') {
+        message = data.message;
+      } else {
+        message = rawText.slice(0, 200) || ('HTTP ' + status);
+      }
+      return { ok: false, error: { status: status, message: message } };
+    }
+
+    if (data == null) {
+      const isHtml = looksLikeHtml(rawText, contentType);
+      const hint = isHtml
+        ? '接口返回的是网页(HTML)而不是 JSON，说明 Base URL 指到了网页而非 API。请改用 API 根地址（通常以 /v1 结尾）。'
+        : '接口返回的内容不是合法 JSON。';
+      return {
+        ok: false,
+        error: {
+          status: status,
+          message: hint + ' 实际请求: ' + url + ' （content-type: ' + (contentType || '未知') + '）',
+        },
+      };
+    }
+
+    return { ok: true, translations: extractJsonArray(extractContent(config, data)) };
+  }
+
   const api = {
     DEFAULT_BASE_URLS,
     systemPrompt,
@@ -97,6 +146,8 @@
     extractContent,
     extractJsonArray,
     parseResponse,
+    looksLikeHtml,
+    interpretResponse,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

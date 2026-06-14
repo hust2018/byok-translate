@@ -81,3 +81,82 @@ test('extractJsonArray: 非数组返回 null', () => {
 test('extractJsonArray: 元素强制转字符串', () => {
   assert.deepEqual(T.extractJsonArray('[1, true, "c"]'), ['1', 'true', 'c']);
 });
+
+test('interpretResponse: 200 但返回 HTML -> 提示 Base URL 错误并附实际 URL', () => {
+  const r = T.interpretResponse(
+    { provider: 'openai' },
+    {
+      status: 200,
+      ok: true,
+      contentType: 'text/html; charset=utf-8',
+      rawText: '<!doctype html>\n<html lang="zh"><head></head></html>',
+      url: 'https://api.ikuncode.cc/chat/completions',
+    }
+  );
+  assert.equal(r.ok, false);
+  assert.equal(r.error.status, 200);
+  assert.match(r.error.message, /网页|HTML|Base URL/);
+  assert.match(r.error.message, /https:\/\/api\.ikuncode\.cc\/chat\/completions/);
+});
+
+test('interpretResponse: 成功 openai -> 返回 translations', () => {
+  const r = T.interpretResponse(
+    { provider: 'openai' },
+    {
+      status: 200,
+      ok: true,
+      contentType: 'application/json',
+      rawText: JSON.stringify({ choices: [{ message: { content: '["你好"]' } }] }),
+      url: 'https://api.ikuncode.cc/v1/chat/completions',
+    }
+  );
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.translations, ['你好']);
+});
+
+test('interpretResponse: 成功 anthropic -> 返回 translations', () => {
+  const r = T.interpretResponse(
+    { provider: 'anthropic' },
+    {
+      status: 200,
+      ok: true,
+      contentType: 'application/json',
+      rawText: JSON.stringify({ content: [{ type: 'text', text: '["hi"]' }] }),
+      url: 'https://api.anthropic.com/v1/messages',
+    }
+  );
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.translations, ['hi']);
+});
+
+test('interpretResponse: 401 JSON 错误 -> 透传 error.message 与状态码', () => {
+  const r = T.interpretResponse(
+    { provider: 'openai' },
+    {
+      status: 401,
+      ok: false,
+      contentType: 'application/json',
+      rawText: JSON.stringify({ error: { message: 'Invalid API key' } }),
+      url: 'https://api.ikuncode.cc/v1/chat/completions',
+    }
+  );
+  assert.equal(r.ok, false);
+  assert.equal(r.error.status, 401);
+  assert.match(r.error.message, /Invalid API key/);
+});
+
+test('interpretResponse: 200 但非 JSON 非 HTML -> 提示不是合法 JSON', () => {
+  const r = T.interpretResponse(
+    { provider: 'openai' },
+    {
+      status: 200,
+      ok: true,
+      contentType: 'text/plain',
+      rawText: 'service temporarily unavailable',
+      url: 'https://api.ikuncode.cc/v1/chat/completions',
+    }
+  );
+  assert.equal(r.ok, false);
+  assert.equal(r.error.status, 200);
+  assert.match(r.error.message, /JSON/);
+});
