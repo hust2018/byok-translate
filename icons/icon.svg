@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512">
+  <rect width="512" height="512" rx="104" fill="#2d7df9"/>
+  <text x="168" y="266" font-size="232" fill="#ffffff" text-anchor="middle"
+        font-family="Helvetica, Arial, sans-serif" font-weight="700">A</text>
+  <text x="350" y="446" font-size="232" fill="#ffffff" text-anchor="middle"
+        font-family="PingFang SC, Hiragino Sans GB, Helvetica, sans-serif" font-weight="700">文</text>
+</svg>
