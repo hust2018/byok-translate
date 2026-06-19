@@ -54,12 +54,16 @@
     return !!(el.getAttribute && el.getAttribute('data-tw'));
   }
 
-  // el 内部是否还有「带可译文字的块级后代」——若有，el 不是叶子块（文字应归到更深的块）。
+  // el 是否「不该被当作新叶子块直接翻译」。两种情况返回 true:
+  //  1) 内部含已处理过的块/译文节点（data-tw 或 .tw-translation）——其文字已在更深层处理，
+  //     否则译文完成后父容器会被误判为新叶子，把「原文+译文」再翻一遍（自我循环翻译）。
+  //  2) 内部还有带可译文字的块级后代——文字应归到更深的块。
   function hasBlockDescendantWithText(el, win) {
     const descendants = el.querySelectorAll('*');
     for (let i = 0; i < descendants.length; i++) {
       const c = descendants[i];
-      if (isSkippableTag(c.tagName) || isTwNode(c)) continue;
+      if (isSkippableTag(c.tagName)) continue;
+      if (isTwNode(c)) return true;
       let s;
       try { s = win.getComputedStyle(c); } catch (e) { continue; }
       if (s.display === 'none') continue;
@@ -100,7 +104,7 @@
   const api = {
     SKIP_TAGS, BLOCK_TAGS, BLOCK_DISPLAYS, MIN_TEXT_LENGTH,
     isSkippableTag, isBlockTag, isBlockDisplay, isTranslatableText,
-    isChromeContainer, hasBlockDescendantWithText, collectBlocks,
+    isChromeContainer, isTwNode, hasBlockDescendantWithText, collectBlocks,
   };
 
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

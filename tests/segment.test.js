@@ -51,3 +51,12 @@ test('isBlockDisplay: 行内/无/表格行 不视为块', () => {
     assert.equal(S.isBlockDisplay(d), false, d);
   });
 });
+
+test('isTwNode: 识别已处理的块(data-tw)与译文节点(.tw-translation)', () => {
+  const twClass = { classList: { contains: (c) => c === 'tw-translation' }, getAttribute: () => null };
+  const twAttr = { classList: { contains: () => false }, getAttribute: (a) => (a === 'data-tw' ? 'done' : null) };
+  const plain = { classList: { contains: () => false }, getAttribute: () => null };
+  assert.equal(S.isTwNode(twClass), true);
+  assert.equal(S.isTwNode(twAttr), true);
+  assert.equal(S.isTwNode(plain), false);
+});
