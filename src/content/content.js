@@ -19,12 +19,23 @@
     settings: null,
   };
 
+  // 扩展被重新加载/更新/停用后，本页旧的 content script 会失联（chrome.runtime.id 变 undefined），
+  // 此时再调 chrome.* 会抛 "Extension context invalidated"。
+  function extensionAlive() {
+    try { return !!(chrome.runtime && chrome.runtime.id); } catch (e) { return false; }
+  }
+
   function getSettings() {
+    const DEFAULTS = { batchSize: 10, targetLang: '简体中文', autoTranslateDomains: [], apiKey: '' };
     return new Promise((resolve) => {
-      chrome.storage.local.get('settings', (stored) => {
-        const DEFAULTS = { batchSize: 10, targetLang: '简体中文', autoTranslateDomains: [], apiKey: '' };
-        resolve(Object.assign({}, DEFAULTS, (stored && stored.settings) || {}));
-      });
+      try {
+        chrome.storage.local.get('settings', (stored) => {
+          if (chrome.runtime.lastError) { resolve(DEFAULTS); return; }
+          resolve(Object.assign({}, DEFAULTS, (stored && stored.settings) || {}));
+        });
+      } catch (e) {
+        resolve(DEFAULTS);
+      }
     });
   }
 
@@ -63,9 +74,29 @@
     return node;
   }
 
+  function shutdownOrphan() {
+    // 失联后静默停掉所有观察与队列，避免反复抛错。刷新页面即可用上新版本。
+    try { if (STATE.observer) STATE.observer.disconnect(); } catch (e) { /* ignore */ }
+    try { if (STATE.mo) STATE.mo.disconnect(); } catch (e) { /* ignore */ }
+    if (STATE.flushTimer) { clearTimeout(STATE.flushTimer); STATE.flushTimer = null; }
+    if (STATE.rescanTimer) { clearTimeout(STATE.rescanTimer); STATE.rescanTimer = null; }
+    STATE.observer = null;
+    STATE.mo = null;
+    STATE.on = false;
+    STATE.queue = [];
+  }
+
+  function dropBatch(batch) {
+    batch.forEach((b) => {
+      try { b.el.removeAttribute('data-tw'); b.placeholder.remove(); } catch (e) { /* ignore */ }
+    });
+  }
+
   function sendBatch(batch) {
+    if (!extensionAlive()) { shutdownOrphan(); dropBatch(batch); return; }
     const texts = batch.map((b) => b.text);
-    chrome.runtime.sendMessage({ type: 'translate', texts }, (resp) => {
+    try {
+      chrome.runtime.sendMessage({ type: 'translate', texts }, (resp) => {
       if (chrome.runtime.lastError || !resp || !resp.ok) {
         const err = resp && resp.error;
         const detail = err
@@ -89,7 +120,12 @@
         }
       });
       if (!ok) showToast('部分段落翻译格式异常，已跳过', true);
-    });
+      });
+    } catch (e) {
+      // 同步抛错的几乎只有 "Extension context invalidated"
+      shutdownOrphan();
+      dropBatch(batch);
+    }
   }
 
   function flushQueue() {
