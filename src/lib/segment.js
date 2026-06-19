@@ -25,7 +25,7 @@
   ]);
 
   // 元素本身是交互控件（链接/按钮等）时，整块跳过——这些是 UI 不是正文。
-  const INTERACTIVE_SELF = 'a[href],[role="button"],[role="tab"],[role="menuitem"],[role="option"],[role="switch"],label';
+  const INTERACTIVE_SELF = 'a[href],[role="button"],[role="tab"],[role="menuitem"],[role="menuitemradio"],[role="menuitemcheckbox"],[role="option"],[role="switch"],[role="slider"],label';
 
   const MIN_TEXT_LENGTH = 2;
 
@@ -46,6 +46,9 @@
     const trimmed = String(text).trim();
     if (trimmed.length < MIN_TEXT_LENGTH) return false;
     if (!/\p{L}/u.test(trimmed)) return false;
+    // 跳过「无空格的单个标记且含数字」:720p / 1080p / 4K / 60fps / 12:34 / GPT-4 等
+    // 清晰度/码率/时间戳/代号——是 UI/标签而非正文。含空格的词句不受影响。
+    if (!/\s/.test(trimmed) && /\d/.test(trimmed)) return false;
     return true;
   }
 

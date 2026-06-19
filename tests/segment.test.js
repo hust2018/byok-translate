@@ -40,6 +40,18 @@ test('isTranslatableText: 空/超短/纯符号数字不可译', () => {
   assert.equal(S.isTranslatableText('$ 1,000.00'), false);
 });
 
+test('isTranslatableText: 跳过含数字的单个标记(分辨率/码率/时间戳/代号)', () => {
+  ['720p', '1080p', '4K', '60fps', '12:34', '00:00:00', 'v2.0', 'H264', 'GPT-4'].forEach((t) => {
+    assert.equal(S.isTranslatableText(t), false, t + ' 应跳过');
+  });
+});
+
+test('isTranslatableText: 含空格的词句或无数字的词仍可译', () => {
+  assert.equal(S.isTranslatableText('Chapter 1 Introduction'), true);
+  assert.equal(S.isTranslatableText('Overview'), true);
+  assert.equal(S.isTranslatableText('你好'), true);
+});
+
 test('isBlockDisplay: 块级 display 视为块', () => {
   ['block', 'flex', 'grid', 'list-item', 'table', 'table-cell', 'table-caption', 'flow-root'].forEach((d) => {
     assert.equal(S.isBlockDisplay(d), true, d);
