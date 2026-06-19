@@ -39,3 +39,15 @@ test('isTranslatableText: 空/超短/纯符号数字不可译', () => {
   assert.equal(S.isTranslatableText('--- >>> ###'), false);
   assert.equal(S.isTranslatableText('$ 1,000.00'), false);
 });
+
+test('isBlockDisplay: 块级 display 视为块', () => {
+  ['block', 'flex', 'grid', 'list-item', 'table', 'table-cell', 'table-caption', 'flow-root'].forEach((d) => {
+    assert.equal(S.isBlockDisplay(d), true, d);
+  });
+});
+
+test('isBlockDisplay: 行内/无/表格行 不视为块', () => {
+  ['inline', 'inline-block', 'inline-flex', 'none', 'contents', 'table-row', ''].forEach((d) => {
+    assert.equal(S.isBlockDisplay(d), false, d);
+  });
+});

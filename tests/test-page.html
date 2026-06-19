@@ -13,6 +13,17 @@
   <pre><code>const x = 1; // this code block must NOT be translated</code></pre>
   <p>123 456 789</p>
   <p>$ 1,000.00</p>
+
+  <h2 style="display:flex; align-items:center; gap:8px;">
+    <span>Flex heading</span><span>(translation must go BELOW, not beside)</span>
+  </h2>
+
+  <!-- 模拟飞书/Notion:正文是嵌套 div + 多个 span，而非语义化 <p> -->
+  <div class="editor" style="border:1px solid #ddd; padding:8px;">
+    <div class="doc-block"><div class="line"><span>This editor-style paragraph is built from nested divs and spans, like Feishu or Notion documents.</span></div></div>
+    <div class="doc-block"><div class="line"><span>Second editor paragraph </span><span>split across several inline </span><span>spans inside one block.</span></div></div>
+  </div>
+
   <p style="margin-top:1500px;">This paragraph is far down to test lazy loading via scrolling into the viewport.</p>
 </body>
 </html>

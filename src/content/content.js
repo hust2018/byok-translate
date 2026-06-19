@@ -10,7 +10,10 @@
 
   const STATE = {
     on: false,
-    observer: null,
+    observer: null,      // IntersectionObserver:进入视口才翻
+    mo: null,            // MutationObserver:跟踪动态/虚拟滚动新增的块
+    rescanTimer: null,
+    observed: null,      // WeakSet<Element>:已交给 IntersectionObserver 的块，避免重复
     queue: [],
     flushTimer: null,
     settings: null,
@@ -45,6 +48,9 @@
     // 字号/颜色等不照搬，自然继承容器的正文样式。
     const node = document.createElement('div');
     node.className = 'tw-translation tw-loading';
+    // 编辑器型页面（飞书/Notion）正文常是 contenteditable，标记为不可编辑，
+    // 避免被编辑器并入正文模型或当成可编辑文本。
+    node.setAttribute('contenteditable', 'false');
     node.textContent = '翻译中…';
     try {
       const cs = getComputedStyle(block);
@@ -114,7 +120,26 @@
     scheduleFlush();
   }
 
+  function observeBlock(el) {
+    if (STATE.observed.has(el) || el.getAttribute('data-tw')) return;
+    STATE.observed.add(el);
+    STATE.observer.observe(el);
+  }
+
+  function scanAndObserve() {
+    SEG.collectBlocks(document.body).forEach(observeBlock);
+  }
+
+  function scheduleRescan() {
+    if (STATE.rescanTimer) return;
+    STATE.rescanTimer = setTimeout(() => {
+      STATE.rescanTimer = null;
+      if (STATE.on) scanAndObserve();
+    }, 500);
+  }
+
   function startObserver() {
+    STATE.observed = new WeakSet();
     STATE.observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -123,7 +148,23 @@
         }
       });
     }, { rootMargin: '200px' });
-    SEG.collectBlocks(document.body).forEach((b) => STATE.observer.observe(b));
+    scanAndObserve();
+
+    // 跟踪 SPA/编辑器的动态渲染与虚拟滚动:有新节点加入就重扫（忽略我们自己插入的译文节点）。
+    STATE.mo = new MutationObserver((mutations) => {
+      if (!STATE.on) return;
+      for (let i = 0; i < mutations.length; i++) {
+        const added = mutations[i].addedNodes;
+        for (let j = 0; j < added.length; j++) {
+          const n = added[j];
+          if (n.nodeType === 1 && !(n.classList && n.classList.contains('tw-translation'))) {
+            scheduleRescan();
+            return;
+          }
+        }
+      }
+    });
+    STATE.mo.observe(document.body, { childList: true, subtree: true });
   }
 
   async function turnOn() {
@@ -141,7 +182,10 @@
     if (!STATE.on) return;
     STATE.on = false;
     if (STATE.observer) { STATE.observer.disconnect(); STATE.observer = null; }
+    if (STATE.mo) { STATE.mo.disconnect(); STATE.mo = null; }
     if (STATE.flushTimer) { clearTimeout(STATE.flushTimer); STATE.flushTimer = null; }
+    if (STATE.rescanTimer) { clearTimeout(STATE.rescanTimer); STATE.rescanTimer = null; }
+    STATE.observed = null;
     document.querySelectorAll('.tw-translation').forEach((n) => n.remove());
     document.querySelectorAll('[data-tw]').forEach((n) => n.removeAttribute('data-tw'));
     STATE.queue = [];
