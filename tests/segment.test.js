@@ -60,3 +60,14 @@ test('isTwNode: 识别已处理的块(data-tw)与译文节点(.tw-translation)',
   assert.equal(S.isTwNode(twAttr), true);
   assert.equal(S.isTwNode(plain), false);
 });
+
+test('isChromeContainer: 跳过 nav 标签与外壳角色', () => {
+  const nav = { tagName: 'NAV', getAttribute: () => null };
+  const navRole = { tagName: 'DIV', getAttribute: (a) => (a === 'role' ? 'navigation' : null) };
+  const toolbar = { tagName: 'DIV', getAttribute: (a) => (a === 'role' ? 'toolbar' : null) };
+  const complementary = { tagName: 'DIV', getAttribute: (a) => (a === 'role' ? 'complementary' : null) };
+  const contentinfo = { tagName: 'DIV', getAttribute: (a) => (a === 'role' ? 'contentinfo' : null) };
+  const plain = { tagName: 'DIV', getAttribute: () => null };
+  [nav, navRole, toolbar, complementary, contentinfo].forEach((el) => assert.equal(S.isChromeContainer(el), true));
+  assert.equal(S.isChromeContainer(plain), false);
+});

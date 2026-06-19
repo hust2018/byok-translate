@@ -127,7 +127,9 @@
   }
 
   function scanAndObserve() {
-    SEG.collectBlocks(document.body).forEach(observeBlock);
+    // 只在正文主体区域内收集，跳过导航/页眉页脚/侧栏等外壳。
+    const root = SEG.findContentRoot(document) || document.body;
+    SEG.collectBlocks(root).forEach(observeBlock);
   }
 
   function scheduleRescan() {

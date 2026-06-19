@@ -2,6 +2,11 @@
 <html lang="en">
 <head><meta charset="UTF-8" /><title>trans-web test page</title></head>
 <body>
+  <!-- 以下 UI 都不应被翻译 -->
+  <nav><a href="#">Home</a> <a href="#">Docs</a> <a href="#">About us</a></nav>
+  <div class="breadcrumb"><a href="#">Home</a> / <a href="#">Guide</a> / <a href="#">This Page</a></div>
+  <div role="toolbar"><button>Save changes</button> <button>Share link</button></div>
+
   <h1>The Quick Brown Fox</h1>
   <p>This is the first paragraph that should be translated into the target language.</p>
   <p>Here is a second paragraph with more meaningful sentences to verify batching works correctly across multiple blocks.</p>
